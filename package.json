@@ -1,0 +1,13 @@
+{
+  "name": "brap",
+  "version": "1.0.0",
+  "description": "braperino crocodilo",
+  "main": "app.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}
+   

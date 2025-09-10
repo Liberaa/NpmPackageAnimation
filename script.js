@@ -12,4 +12,20 @@ element.style.background = 'black'
 element.style.left = '100px'
 element.style.top = '100px'
 
+let x = 100
+let y = 100
+let speed = 5
+let keys = {}
+// I Will set this vaule as true later In my if statments :D 
+let up = false
+let down = false
+let left = false
+let right = false
+
+
+document.addEventListener('keydown', function(event) {
+    if(event.key == 'ArrowUp' || event.key == 'w' ) up = true // Something like this :O
+})
+
+
 }

@@ -23,7 +23,7 @@ export function MoveDiv(move) {
     let left = false
     let right = false
 
-    // detect key press
+    // detect key press, maby use window.
     document.addEventListener('keydown', function(event) {
         if(event.key == 'w') up = true // Something like this :O
     })

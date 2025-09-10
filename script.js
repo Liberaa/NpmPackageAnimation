@@ -1,6 +1,6 @@
 // functions, export, 
 
-export function MoveDiv() {
+export function MoveDiv(scenes) {
     const element = document.createElement('div')
     element.id = 'player' // elemnts idlkl
     document.body.appendChild(element) // body basic html wallahi, putting the div inside the <body>
@@ -10,9 +10,9 @@ export function MoveDiv() {
     element.style.height = '60px'
     element.style.background = 'black'
 
-    // center horizontally by default
-    let x = window.innerWidth / 2 - 30 // 30 = half width of div
-    let y = window.innerHeight / 2 - 30 // optional vertical center
+    let currentScene = 0
+    let x = window.innerWidth / 2 - 30
+    let y = window.innerHeight / 2 - 30
     element.style.left = x + 'px'
     element.style.top = y + 'px'
 
@@ -31,12 +31,27 @@ export function MoveDiv() {
         if(event.key == 'd') right = false
     })
 
+    // load initial scene
+    if(scenes[currentScene]) scenes[currentScene]()
+
     function move() {
         if(left) x -= speed
         if(right) x += speed
 
         element.style.left = x + 'px'
         element.style.top = y + 'px'
+
+        // check edges and trigger scene change
+        if(x <= 0) {
+            currentScene = (currentScene - 1 + scenes.length) % scenes.length
+            x = window.innerWidth - 60
+            if(scenes[currentScene]) scenes[currentScene]()
+        }
+        if(x + 60 >= window.innerWidth) {
+            currentScene = (currentScene + 1) % scenes.length
+            x = 0
+            if(scenes[currentScene]) scenes[currentScene]()
+        }
 
         requestAnimationFrame(move)
     }

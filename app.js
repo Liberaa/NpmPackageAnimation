@@ -1,3 +1,3 @@
-import { brap } from './script.js'
+import { MoveDiv } from './script.js'
 
-console.log(brap('Anton'))
+MoveDiv()

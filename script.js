@@ -1,59 +1,29 @@
-// functions, export, 
-export function MoveDiv(scenes) {
-    const element = document.createElement('div')
-    element.id = 'player' // elemnts idlkl
-    document.body.appendChild(element) // body basic html wallahi, putting the div inside the <body>
+export function MoveDiv() {
+    const player = document.createElement('div')
+    // define id,
+    //body.appendchild(player)
 
-    element.style.position = 'absolute'
-    element.style.width = '60px'
-    element.style.height = '60px'
-    element.style.background = 'black'
+  player.style.width = '60px'
+  player.style.height = '60px'
+  player.style.background = 'grey'
+  player.style.borderRadius = '24px' 
+  player.style.position = 'absolute'
+  player.style.left = '200px'
+  player.style.top = '200px'
 
-    let currentScene = 0
-    let x = window.innerWidth / 2 - 30
-    let y = window.innerHeight / 2 - 30
-    element.style.left = x + 'px'
-    element.style.top = y + 'px'
+  let x = 200
+  let y = 200
+  let speed = 20
+  let leftPressed = false
+  let rightPressed = false
+  let upPressed = false
+  let downPressed = false
 
-    let speed = 5
-    let left = false
-    let right = false
-    // I Will set this vaule as true later In my if statments :D 
+  document.body.appendChild(player)
 
-    document.addEventListener('keydown', function(event) {
-        if(event.key == 'a') left = true // Something like this :O
-        if(event.key == 'd') right = true
-    })
+  document.addEventListener('keydown', event => {
+    const key = event.key.toLowerCase() // if players have caps lock we help them out <3
 
-    document.addEventListener('keyup', function(event) {
-        if(event.key == 'a') left = false
-        if(event.key == 'd') right = false
-    })
+  })
 
-    // load
-    if(scenes[currentScene]) scenes[currentScene]()
-
-    function move() {
-        if(left) x -= speed
-        if(right) x += speed
-
-        // scene change
-        if(x <= 0) {
-            currentScene = (currentScene - 1 + scenes.length) % scenes.length
-            x = window.innerWidth - 70 // appear on the right side with buffer
-            if(scenes[currentScene]) scenes[currentScene]()
-        }
-        if(x + 60 >= window.innerWidth) {
-            currentScene = (currentScene + 1) % scenes.length
-            x = 10 // appear on the left side with buffer
-            if(scenes[currentScene]) scenes[currentScene]()
-        }
-
-        element.style.left = x + 'px'
-        element.style.top = y + 'px'
-
-        requestAnimationFrame(move)
-    }
-
-    move()
 }

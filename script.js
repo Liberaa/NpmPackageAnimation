@@ -1,5 +1,7 @@
-export function MoveDiv() {
+export function MoveDiv(options = {}) {
     const player = document.createElement('div')
+
+const controlScheme = options.controlScheme || 'wsad' // Want to give user the choice to move the div like this :  x + jump  || or x and y no jump
 
     player.style.width = '60px'
     player.style.height = '60px'
@@ -8,6 +10,7 @@ export function MoveDiv() {
     player.style.position = 'absolute'
     player.style.left = '200px'
     player.style.top = '200px'
+    player.style.backgroundColor = 'black'
 
     let x = 200
     let y = 200
@@ -16,6 +19,12 @@ export function MoveDiv() {
     let rightPressed = false
     let upPressed = false
     let downPressed = false
+
+    let jumPressed = false
+    let velocity = 0
+    let jumpPower = 5
+    const gravity = 0.2
+     // const groundLevel = window.innerHeight
 
     document.body.appendChild(player)
 
@@ -27,6 +36,10 @@ export function MoveDiv() {
         if (key === 'd') rightPressed = true
         if (key === 'w') upPressed = true
         if (key === 's') downPressed = true
+        if(key === ' ') {
+            
+        }
+       // if (key === ' ') 
     })
 
     document.addEventListener('keyup', event => {
@@ -37,6 +50,9 @@ export function MoveDiv() {
         if (key === 'd') rightPressed = false
         if (key === 'w') upPressed = false
         if (key === 's') downPressed = false
+        if(key === ' ') {
+
+        }
     })
 
     setInterval(() => {
@@ -44,7 +60,7 @@ export function MoveDiv() {
         if (rightPressed) x += speed  
         if (upPressed) y -= speed     
         if (downPressed) y += speed   
-
+// no running away from window!
         if (x < 0) x = 0
         if (x > window.innerWidth - 60) x = window.innerWidth - 60
         if (y < 0) y = 0

@@ -1,24 +1,16 @@
-// obstacle.js
-
 export function createObstacle(options = {}) {
     const obstacle = document.createElement('div')
 
-    const width = options.width || 100
-    const height = options.height || 40
-    const color = options.color || 'darkgreen'
-    const x = options.x || 300
-    const y = options.y || window.innerHeight - height - 20
-
-    obstacle.style.width = width + 'px'
-    obstacle.style.height = height + 'px'
-    obstacle.style.backgroundColor = color
+    obstacle.style.width = (options.width || 100) + 'px'
+    obstacle.style.height = (options.height || 20) + 'px'
+    obstacle.style.backgroundColor = options.color || 'red'
     obstacle.style.position = 'absolute'
-    obstacle.style.left = x + 'px'
-    obstacle.style.top = y + 'px'
-    obstacle.style.borderRadius = '8px'
+    obstacle.style.left = (options.x || 0) + 'px'
+    obstacle.style.top = (options.y || 0) + 'px'
 
-  
+    obstacle.enableCollision = options.enableCollision ?? true
+    obstacle.onCollide = options.onCollide || null
+
     document.body.appendChild(obstacle)
-
-    return obstacle 
+    return obstacle
 }

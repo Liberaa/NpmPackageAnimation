@@ -1,111 +1,181 @@
+import { createObstacle } from './obstacle.js'
+
 export function MoveDiv(options = {}) {
-    const player = document.createElement('div')
+    const playerElement = document.createElement('div')
+    const controlScheme = options.controlScheme || 'wasd'
+    const enableCollisionDetection = options.enableCollision || false
 
-    const controlScheme = options.controlScheme || 'wasd' // User chooses 'wasd' or 'platform'
+    const obstacleList = []
 
-    player.style.width = '60px'
-    player.style.height = '60px'
-    player.style.background = 'grey'
-    player.style.borderRadius = '24px'
-    player.style.position = 'absolute'
-    player.style.left = '200px'
-    player.style.top = '200px'
-    player.style.backgroundColor = 'black'
+    // Player visual styling
+    playerElement.style.width = '60px'
+    playerElement.style.height = '60px'
+    playerElement.style.backgroundColor = 'black'
+    playerElement.style.borderRadius = '24px'
+    playerElement.style.position = 'absolute'
 
-    let x = 200
-    let y = 200
-    let speed = 5
+    // Movement configuration
+    const playerMovementSpeed = 5
+    const playerWidth = 60
+    const playerHeight = 60
 
-    let leftPressed = false
-    let rightPressed = false
-    let upPressed = false
-    let downPressed = false
-    let jumpPressed = false
-    let isJumping = false
+    // Input state tracking
+    let isLeftKeyPressed = false
+    let isRightKeyPressed = false
+    let isUpKeyPressed = false
+    let isDownKeyPressed = false
+    let isJumpKeyPressed = false
+    let playerIsJumping = false
 
-    let velocity = 0
-    let jumpPower = 7
-    const gravity = 0.3
-    const groundLevel = window.innerHeight - 60
+    // Physics for platformer
+    let verticalVelocity = 0
+    const jumpStrength = 7
+    const gravityForce = 0.3
+    const groundYPosition = window.innerHeight - playerHeight
 
-    document.body.appendChild(player)
+    // Player position (spawn logic)
+    let playerXPosition = options.spawnX ?? 200
+    let playerYPosition = options.spawnY ?? (controlScheme === 'platform' ? groundYPosition : 200)
 
-    document.addEventListener('keydown', event => {
-        const key = event.key.toLowerCase() // If player got caps lock on
-        console.log('keys thats pressed:' + key)
+    playerElement.style.left = playerXPosition + 'px'
+    playerElement.style.top = playerYPosition + 'px'
 
+    document.body.appendChild(playerElement)
+
+    document.addEventListener('keydown', keydownEvent => {
+        const pressedKey = keydownEvent.key.toLowerCase()
+        
         if (controlScheme === 'wasd') {
-            if (key === 'a') leftPressed = true
-            if (key === 'd') rightPressed = true
-            if (key === 'w') upPressed = true
-            if (key === 's') downPressed = true
+            if (pressedKey === 'a') isLeftKeyPressed = true
+            if (pressedKey === 'd') isRightKeyPressed = true
+            if (pressedKey === 'w') isUpKeyPressed = true
+            if (pressedKey === 's') isDownKeyPressed = true
         } else if (controlScheme === 'platform') {
-            if (key === 'a') leftPressed = true
-            if (key === 'd') rightPressed = true
-            if (key === ' ' && !isJumping) {
-                jumpPressed = true
-                isJumping = true
-                velocity = -jumpPower
+            if (pressedKey === 'a') isLeftKeyPressed = true
+            if (pressedKey === 'd') isRightKeyPressed = true
+            if (pressedKey === ' ' && !playerIsJumping) {
+                isJumpKeyPressed = true
+                playerIsJumping = true
+                verticalVelocity = -jumpStrength
             }
         }
     })
 
-    document.addEventListener('keyup', event => {
-        const key = event.key.toLowerCase() // caps
-
+    document.addEventListener('keyup', keyupEvent => {
+        const releasedKey = keyupEvent.key.toLowerCase()
+        
         if (controlScheme === 'wasd') {
-            if (key === 'a') leftPressed = false
-            if (key === 'd') rightPressed = false
-            if (key === 'w') upPressed = false
-            if (key === 's') downPressed = false
+            if (releasedKey === 'a') isLeftKeyPressed = false
+            if (releasedKey === 'd') isRightKeyPressed = false
+            if (releasedKey === 'w') isUpKeyPressed = false
+            if (releasedKey === 's') isDownKeyPressed = false
         } else if (controlScheme === 'platform') {
-            if (key === 'a') leftPressed = false
-            if (key === 'd') rightPressed = false
-            if (key === ' ') jumpPressed = false // stop jump if released
+            if (releasedKey === 'a') isLeftKeyPressed = false
+            if (releasedKey === 'd') isRightKeyPressed = false
+            if (releasedKey === ' ') isJumpKeyPressed = false
         }
     })
 
-    function gameLoop() {
-        if (controlScheme === 'wasd') {
-            if (leftPressed) x -= speed
-            if (rightPressed) x += speed
-            if (upPressed) y -= speed
-            if (downPressed) y += speed
-        } else if (controlScheme === 'platform') {
-            if (leftPressed) x -= speed
-            if (rightPressed) x += speed
-
-            // Jump and gravity logic
-            if (isJumping) {
-                y += velocity
-                velocity += gravity
-
-                // Short jump if space is released early
-                if (!jumpPressed && velocity < -2) {
-                    velocity = -2
-                }
-
-                // Land back on ground
-                if (y >= groundLevel) {
-                    y = groundLevel
-                    isJumping = false
-                    velocity = 0
-                }
-            }
-        }
-
-        // Keep player inside
-        if (x < 0) x = 0
-        if (x > window.innerWidth - 60) x = window.innerWidth - 60
-        if (y < 0) y = 0
-        if (y > window.innerHeight - 60) y = window.innerHeight - 60
-
-        // Update div position
-        player.style.left = x + 'px'
-        player.style.top = y + 'px'
-
-        requestAnimationFrame(gameLoop)
+    function addObstacleToGame(obstacleOptions = {}) {
+        const newObstacle = createObstacle(obstacleOptions)
+        obstacleList.push(newObstacle)
+        return newObstacle
     }
 
-    gameLoop()
+    function detectCollisionBetween(objectX, objectY, objectWidth, objectHeight, obstacleElement) {
+        const obstacleXPosition = parseInt(obstacleElement.style.left)
+        const obstacleYPosition = parseInt(obstacleElement.style.top)
+        const obstacleWidth = parseInt(obstacleElement.style.width)
+        const obstacleHeight = parseInt(obstacleElement.style.height)
+
+        return objectX < obstacleXPosition + obstacleWidth &&
+               objectX + objectWidth > obstacleXPosition &&
+               objectY < obstacleYPosition + obstacleHeight &&
+               objectY + objectHeight > obstacleYPosition
+    }
+
+    function runGameLoop() {
+        if (controlScheme === 'platform') {
+            // a and d movement
+            if (isLeftKeyPressed) playerXPosition -= playerMovementSpeed
+            if (isRightKeyPressed) playerXPosition += playerMovementSpeed
+
+            let playerHasLandedOnSurface = false
+
+            // gravity and jumping velocityy
+            if (playerIsJumping) {
+                playerYPosition += verticalVelocity
+                verticalVelocity += gravityForce
+            }
+
+            // (platform landing)
+            if (enableCollisionDetection && obstacleList.length > 0) {
+                for (const currentObstacle of obstacleList) {
+                    if (currentObstacle.enableCollision && verticalVelocity >= 0) {
+                        const obstacleXPosition = parseInt(currentObstacle.style.left)
+                        const obstacleYPosition = parseInt(currentObstacle.style.top)
+                        const obstacleWidth = parseInt(currentObstacle.style.width)
+
+                        const playerIsAboveObstacle = playerXPosition + playerWidth > obstacleXPosition && 
+                                                    playerXPosition < obstacleXPosition + obstacleWidth
+                        const playerBottomEdge = playerYPosition + playerHeight
+                        const playerNextBottomPosition = playerBottomEdge + verticalVelocity
+
+                        if (playerIsAboveObstacle && 
+                            playerBottomEdge <= obstacleYPosition && 
+                            playerNextBottomPosition >= obstacleYPosition) {
+                            playerYPosition = obstacleYPosition - playerHeight
+                            playerIsJumping = false
+                            verticalVelocity = 0
+                            playerHasLandedOnSurface = true
+                            break
+                        }
+                    }
+                }
+            }
+
+            // Check  collision on grond 
+            if (!playerHasLandedOnSurface && playerYPosition >= groundYPosition) {
+                playerYPosition = groundYPosition
+                playerIsJumping = false
+                verticalVelocity = 0
+            }
+
+            // Start falling if player are above ground and is not jumping
+            if (!playerHasLandedOnSurface && playerYPosition < groundYPosition && !playerIsJumping) {
+                playerIsJumping = true
+            }
+        } else if (controlScheme === 'wasd') {
+            if (isLeftKeyPressed) playerXPosition -= playerMovementSpeed
+            if (isRightKeyPressed) playerXPosition += playerMovementSpeed
+            if (isUpKeyPressed) playerYPosition -= playerMovementSpeed
+            if (isDownKeyPressed) playerYPosition += playerMovementSpeed
+        }
+
+        // Check collision for obstacles
+        for (const currentObstacle of obstacleList) {
+            if (currentObstacle.onCollide && 
+                detectCollisionBetween(playerXPosition, playerYPosition, playerWidth, playerHeight, currentObstacle)) {
+                currentObstacle.onCollide()
+            }
+        }
+
+        // Keep player inside screen
+        if (playerXPosition < 0) playerXPosition = 0
+        if (playerXPosition > window.innerWidth - playerWidth) playerXPosition = window.innerWidth - playerWidth
+        if (playerYPosition < 0) playerYPosition = 0
+        if (playerYPosition > window.innerHeight - playerHeight) playerYPosition = window.innerHeight - playerHeight
+
+        // Update player positon
+        playerElement.style.left = playerXPosition + 'px'
+        playerElement.style.top = playerYPosition + 'px'
+
+        requestAnimationFrame(runGameLoop)
+    }
+
+    runGameLoop()
+
+    return {
+        addObstacle: addObstacleToGame
+    }
 }
